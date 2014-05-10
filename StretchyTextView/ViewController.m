@@ -8,6 +8,8 @@
 
 #import "ViewController.h"
 
+#import "UIStretchyTextView.h"
+
 @interface ViewController ()
 
 @end
@@ -18,6 +20,17 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
+    self.view.backgroundColor = [UIColor blackColor];
+    UIStretchyTextView * stretchyTextView = [[UIStretchyTextView alloc]init];
+    stretchyTextView.layer.borderWidth = 2.5;
+    stretchyTextView.layer.cornerRadius = 15.0;
+    stretchyTextView.layer.borderColor = [UIColor greenColor].CGColor;
+    stretchyTextView.frame = CGRectMake(0, 20, 300, 100);
+    stretchyTextView.font = [UIFont systemFontOfSize:42.0];
+    stretchyTextView.text = @"SUP \nMan!?";
+    [self.view addSubview:stretchyTextView];
+    
+    
 }
 
 - (void)didReceiveMemoryWarning

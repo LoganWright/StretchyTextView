@@ -21,6 +21,7 @@
 		80E1FCE2191ED7E400B76A1F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80E1FCC4191ED7E400B76A1F /* UIKit.framework */; };
 		80E1FCEA191ED7E400B76A1F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 80E1FCE8191ED7E400B76A1F /* InfoPlist.strings */; };
 		80E1FCEC191ED7E400B76A1F /* StretchyTextViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 80E1FCEB191ED7E400B76A1F /* StretchyTextViewTests.m */; };
+		80E1FCF7191ED80100B76A1F /* UIStretchyTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 80E1FCF6191ED80100B76A1F /* UIStretchyTextView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +54,8 @@
 		80E1FCE7191ED7E400B76A1F /* StretchyTextViewTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "StretchyTextViewTests-Info.plist"; sourceTree = "<group>"; };
 		80E1FCE9191ED7E400B76A1F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		80E1FCEB191ED7E400B76A1F /* StretchyTextViewTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = StretchyTextViewTests.m; sourceTree = "<group>"; };
+		80E1FCF5191ED80100B76A1F /* UIStretchyTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIStretchyTextView.h; sourceTree = "<group>"; };
+		80E1FCF6191ED80100B76A1F /* UIStretchyTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIStretchyTextView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +115,8 @@
 		80E1FCC6191ED7E400B76A1F /* StretchyTextView */ = {
 			isa = PBXGroup;
 			children = (
+				80E1FCF5191ED80100B76A1F /* UIStretchyTextView.h */,
+				80E1FCF6191ED80100B76A1F /* UIStretchyTextView.m */,
 				80E1FCCF191ED7E400B76A1F /* AppDelegate.h */,
 				80E1FCD0191ED7E400B76A1F /* AppDelegate.m */,
 				80E1FCD2191ED7E400B76A1F /* Main.storyboard */,
@@ -252,6 +257,7 @@
 				80E1FCD7191ED7E400B76A1F /* ViewController.m in Sources */,
 				80E1FCD1191ED7E400B76A1F /* AppDelegate.m in Sources */,
 				80E1FCCD191ED7E400B76A1F /* main.m in Sources */,
+				80E1FCF7191ED80100B76A1F /* UIStretchyTextView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
