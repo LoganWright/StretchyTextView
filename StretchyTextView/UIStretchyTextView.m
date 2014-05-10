@@ -23,9 +23,6 @@
 NSString * const KVObserverPathBorderWidth = @"borderWidth";
 NSString * const KVObserverPathCornerRadius = @"cornerRadius";
 
-// Depending on the font, borderwidth, etc. this varies
-static CGFloat masterOffset = 0.0; // 3.0;  // 4.0;
-
 #import "UIStretchyTextView.h"
 
 
@@ -77,12 +74,28 @@ static CGFloat masterOffset = 0.0; // 3.0;  // 4.0;
     
     */
     
+    UIEdgeInsets contentInsets = self.contentInset;
+    NSLog(@"MOVE TO SUPERVIEW: Insets: %@", NSStringFromUIEdgeInsets(contentInsets));
+    UIEdgeInsets textContentInsets = self.textContainerInset;
+    NSLog(@"MOVE TO SUPERVIEW: TextInsets: %@", NSStringFromUIEdgeInsets(textContentInsets));
+    
     [self centerVertically];
 }
 
 - (void) centerVertically {
-    CGFloat topCorrect = ([self bounds].size.height - [self contentSize].height * [self zoomScale])/2.0;
-    topCorrect = ( topCorrect < 0.0 ? 0.0 : topCorrect );
+    
+    UIEdgeInsets contentInsets = self.contentInset;
+    
+    CGFloat height = CGRectGetHeight(self.bounds);
+    CGFloat contentHeight = self.contentSize.height;
+    CGFloat zoomScale = self.zoomScale;
+    NSLog(@"ZoomScale: %f", zoomScale);
+    CGFloat topCorrect = (height - contentHeight * zoomScale) / 2.0;
+    
+    NSLog(@"CenteringInsets: %@", NSStringFromUIEdgeInsets(contentInsets));
+    
+    NSLog(@"TopCorrect: %f", topCorrect);
+    topCorrect = (topCorrect < 0.0) ? 0.0 : topCorrect ;
     self.contentOffset = (CGPoint){.x = 0, .y = -topCorrect};
 }
 
@@ -93,6 +106,16 @@ static CGFloat masterOffset = 0.0; // 3.0;  // 4.0;
         
         // We'll just observe our own stuff
         self.delegate = self;
+        
+        UIEdgeInsets contentInsets = self.contentInset;
+        NSLog(@"INIT: Insets: %@", NSStringFromUIEdgeInsets(contentInsets));
+        contentInsets.top = 10.0;
+        contentInsets.bottom = 10.0;
+        self.contentInset = contentInsets;
+
+        
+        UIEdgeInsets textContentInsets = self.textContainerInset;
+        NSLog(@"INIT: TextInsets: %@", NSStringFromUIEdgeInsets(textContentInsets));
         
         // If these are changed, formatting must follow
         [self.layer addObserver:self
@@ -163,8 +186,10 @@ static CGFloat masterOffset = 0.0; // 3.0;  // 4.0;
     }
     
     // WORKING
-    CGFloat offset = (self.layer.borderWidth * 2.0) + masterOffset;
+    CGFloat offset = self.layer.borderWidth * 2.0;
     CGFloat targetHeight = height + offset;
+    
+    
     /////////////////
     
     
@@ -174,6 +199,7 @@ static CGFloat masterOffset = 0.0; // 3.0;  // 4.0;
         targetHeight = _maxHeight;
     }
     else if (targetHeight < (self.layer.cornerRadius * 2.0)) {
+        // Make sure our height is at least 2x corner radius for smooth rounding
         targetHeight = self.layer.cornerRadius * 2.0;
     }
     
@@ -205,7 +231,7 @@ static CGFloat masterOffset = 0.0; // 3.0;  // 4.0;
     CGFloat bottomOfVisibleTextArea = contentOffsetTop + CGRectGetHeight(self.bounds) - contentInset.top - contentInset.bottom;
     
     // If the top point on the caret is less than offset, then some is offscreen, then that's too much and we need to adjust! (compensate for masterOffset buffer)
-    if (CGRectGetMinY(line) < contentOffsetTop + masterOffset) {
+    if (CGRectGetMinY(line) < contentOffsetTop) {
         NSLog(@"Caret is TOP");
         // Caret is offscreen TOP
         
@@ -217,7 +243,7 @@ static CGFloat masterOffset = 0.0; // 3.0;  // 4.0;
         offsetP.y -= minimumOverflow;
         self.contentOffset = offsetP;
     }
-    else if (bottomOfLine > (bottomOfVisibleTextArea + masterOffset)) {
+    else if (bottomOfLine > bottomOfVisibleTextArea) {
         NSLog(@"Caret is BOTTOM");
         // Caret is offscreen BOTTOM
         
@@ -225,7 +251,7 @@ static CGFloat masterOffset = 0.0; // 3.0;  // 4.0;
         CGFloat bottomOverflow = bottomOfLine - bottomOfVisibleTextArea;
         
         // How much we need to adjust
-        CGFloat minimumOverflow = bottomOverflow + self.layer.borderWidth + masterOffset;
+        CGFloat minimumOverflow = bottomOverflow + self.layer.borderWidth;
         CGPoint offsetP = self.contentOffset;
         offsetP.y += minimumOverflow;
         self.contentOffset = offsetP;
