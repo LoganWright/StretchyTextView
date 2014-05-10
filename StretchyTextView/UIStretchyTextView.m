@@ -14,7 +14,9 @@
 
 /*  PROBLEMS
  
- Arrowing up causes problems sometimes.  Very rare since most people don't use a keyboard.  Otherwise, working strongly.
+ Arrowing up causes problems sometimes.  Very rare since most people don't use a keyboard.
+ 
+ Setting ContentInsets causes problems
  
  */
 
@@ -28,6 +30,7 @@ NSString * const KVObserverPathCornerRadius = @"cornerRadius";
 
 @interface UIStretchyTextView ()
 
+// Theoretically to be used to find our maximum width
 @property CGRect assignedFrame;
 
 @end
@@ -35,69 +38,6 @@ NSString * const KVObserverPathCornerRadius = @"cornerRadius";
 @implementation UIStretchyTextView
 
 @synthesize maxHeight = _maxHeight;
-
-- (void) didMoveToSuperview {
-    
-    /*
-     
-     Initial alignment wasn't working properly, so we'll align it once it's coming onto the view.
-     
-     */
-    
-    //The rectangle of the caret (the blinky thingy in textView's)
-    //CGRect line = [self caretRectForPosition:self.selectedTextRange.end];
-    
-    /*
-    CGRect line = [self caretRectForPosition:self.endOfDocument];
-    NSLog(@"MoveToSuperviewLine: %@", NSStringFromCGRect(line));
-    // Amount of scrollview above contents of view
-    CGFloat contentOffsetTop = self.contentOffset.y;
-    
-    // The top of the caret
-    CGFloat topOfLine = CGRectGetMinY(line);
-    
-    // The bottom of the caret
-    CGFloat bottomOfLine = topOfLine + CGRectGetHeight(line);
-    
-    // The bottom of the visible text area
-    UIEdgeInsets contentInset = self.contentInset;
-    CGFloat bottomOfVisibleTextArea = contentOffsetTop + CGRectGetHeight(self.bounds) - contentInset.top - contentInset.bottom;
-    
-    // The amount that the caret is hanging over the bottom of the textView's visible area
-    CGFloat bottomOverflow = bottomOfLine - bottomOfVisibleTextArea;
-    
-    // How much we need to adjust
-    CGFloat minimumOverflow = bottomOverflow + self.layer.borderWidth + masterOffset;
-    CGPoint offsetP = self.contentOffset;
-    offsetP.y += minimumOverflow;
-    self.contentOffset = offsetP;
-    
-    */
-    
-    UIEdgeInsets contentInsets = self.contentInset;
-    NSLog(@"MOVE TO SUPERVIEW: Insets: %@", NSStringFromUIEdgeInsets(contentInsets));
-    UIEdgeInsets textContentInsets = self.textContainerInset;
-    NSLog(@"MOVE TO SUPERVIEW: TextInsets: %@", NSStringFromUIEdgeInsets(textContentInsets));
-    
-    [self centerVertically];
-}
-
-- (void) centerVertically {
-    
-    UIEdgeInsets contentInsets = self.contentInset;
-    
-    CGFloat height = CGRectGetHeight(self.bounds);
-    CGFloat contentHeight = self.contentSize.height;
-    CGFloat zoomScale = self.zoomScale;
-    NSLog(@"ZoomScale: %f", zoomScale);
-    CGFloat topCorrect = (height - contentHeight * zoomScale) / 2.0;
-    
-    NSLog(@"CenteringInsets: %@", NSStringFromUIEdgeInsets(contentInsets));
-    
-    NSLog(@"TopCorrect: %f", topCorrect);
-    topCorrect = (topCorrect < 0.0) ? 0.0 : topCorrect ;
-    self.contentOffset = (CGPoint){.x = 0, .y = -topCorrect};
-}
 
 - (id)initWithFrame:(CGRect)frame {
     
@@ -107,15 +47,7 @@ NSString * const KVObserverPathCornerRadius = @"cornerRadius";
         // We'll just observe our own stuff
         self.delegate = self;
         
-        UIEdgeInsets contentInsets = self.contentInset;
-        NSLog(@"INIT: Insets: %@", NSStringFromUIEdgeInsets(contentInsets));
-        contentInsets.top = 10.0;
-        contentInsets.bottom = 10.0;
-        self.contentInset = contentInsets;
-
-        
-        UIEdgeInsets textContentInsets = self.textContainerInset;
-        NSLog(@"INIT: TextInsets: %@", NSStringFromUIEdgeInsets(textContentInsets));
+        [[UITextView appearance] setTintColor:[UIColor orangeColor]];
         
         // If these are changed, formatting must follow
         [self.layer addObserver:self
@@ -189,11 +121,10 @@ NSString * const KVObserverPathCornerRadius = @"cornerRadius";
     CGFloat offset = self.layer.borderWidth * 2.0;
     CGFloat targetHeight = height + offset;
     
-    
+    /// ADDING
+    UIEdgeInsets contentInset = self.contentInset;
+    targetHeight = targetHeight + contentInset.top + contentInset.bottom;
     /////////////////
-    
-    
-    
     
     if (targetHeight > _maxHeight) {
         targetHeight = _maxHeight;
@@ -205,18 +136,15 @@ NSString * const KVObserverPathCornerRadius = @"cornerRadius";
     
     CGFloat currentHeight = CGRectGetHeight(self.frame);
     
-    // NSLog(@"TargetHeight: %f", targetHeight);
-    // NSLog(@"CurrentHeight: %f", currentHeight);
-    
     if (targetHeight != currentHeight) {
         self.bounds = CGRectMake(0, 0, CGRectGetWidth(self.bounds), targetHeight);
     }
 }
 - (void) align {
     
-    //The rectangle of the caret (the blinky thingy in textView's)
+    // The rectangle of the caret (the blinky thingy in textView's)
     CGRect line = [self caretRectForPosition:self.selectedTextRange.end];
-    NSLog(@"Line: %@", NSStringFromCGRect(line));
+    
     // Amount of scrollview above contents of view
     CGFloat contentOffsetTop = self.contentOffset.y;
     
@@ -261,6 +189,16 @@ NSString * const KVObserverPathCornerRadius = @"cornerRadius";
         // Caret is onscreen - Do nothing
         // return;
     }
+}
+// Not working as expected?
+- (void) centerVertically {
+    CGFloat height = CGRectGetHeight(self.bounds);
+    CGFloat contentHeight = self.contentSize.height;
+    CGFloat zoomScale = self.zoomScale;
+    CGFloat topCorrect = (height - contentHeight * zoomScale) / 2.0;
+    
+    topCorrect = (topCorrect < 0.0) ? 0.0 : topCorrect ;
+    self.contentOffset = (CGPoint){.x = 0, .y = -topCorrect};
 }
 
 #pragma mark PROPERTY OVERRIDES
