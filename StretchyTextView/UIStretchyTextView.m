@@ -47,8 +47,6 @@ NSString * const KVObserverPathCornerRadius = @"cornerRadius";
         // We'll just observe our own stuff
         self.delegate = self;
         
-        [[UITextView appearance] setTintColor:[UIColor orangeColor]];
-        
         // If these are changed, formatting must follow
         [self.layer addObserver:self
                      forKeyPath:KVObserverPathBorderWidth
@@ -77,21 +75,16 @@ NSString * const KVObserverPathCornerRadius = @"cornerRadius";
 #pragma mark TEXT VIEW DELEGATE
 
 - (void) textViewDidBeginEditing:(UITextView *)textView {
-    
 }
 - (void) textViewDidChange:(UITextView *)textView {
-    NSLog(@"TextViewDidChange");
-    [self resizeAndAlign];
 }
 - (void) textViewDidChangeSelection:(UITextView *)textView {
-    NSLog(@"DidChangeSelection");
     [self resizeAndAlign];
 }
 
 #pragma mark SIZING AND ALIGNING
 
 - (void) resizeAndAlign {
-    NSLog(@"Resizing");
     [self resize];
     [self align];
 }
@@ -160,7 +153,6 @@ NSString * const KVObserverPathCornerRadius = @"cornerRadius";
     
     // If the top point on the caret is less than offset, then some is offscreen, then that's too much and we need to adjust! (compensate for masterOffset buffer)
     if (CGRectGetMinY(line) < contentOffsetTop) {
-        NSLog(@"Caret is TOP");
         // Caret is offscreen TOP
         
         // The amount that the caret is hanging over the top of the textView's visible area
@@ -172,7 +164,6 @@ NSString * const KVObserverPathCornerRadius = @"cornerRadius";
         self.contentOffset = offsetP;
     }
     else if (bottomOfLine > bottomOfVisibleTextArea) {
-        NSLog(@"Caret is BOTTOM");
         // Caret is offscreen BOTTOM
         
         // The amount that the caret is hanging over the bottom of the textView's visible area
@@ -185,12 +176,11 @@ NSString * const KVObserverPathCornerRadius = @"cornerRadius";
         self.contentOffset = offsetP;
     }
     else {
-        NSLog(@"Caret is onscreen");
         // Caret is onscreen - Do nothing
-        // return;
     }
 }
-// Not working as expected?
+
+// Occasionally inconsistent!
 - (void) centerVertically {
     CGFloat height = CGRectGetHeight(self.bounds);
     CGFloat contentHeight = self.contentSize.height;
@@ -252,7 +242,6 @@ NSString * const KVObserverPathCornerRadius = @"cornerRadius";
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     
     if ([keyPath isEqualToString:KVObserverPathBorderWidth]) {
-        NSLog(@"Setting Border Width");
         UIEdgeInsets insets =  self.textContainerInset;
         CGFloat borderWidth = self.layer.borderWidth;
         insets.left += borderWidth;
@@ -272,179 +261,6 @@ NSString * const KVObserverPathCornerRadius = @"cornerRadius";
     }
     
 }
-
-
-
-
-
-
-
-
-
-/*
-
-#pragma mark OLD FILES
-
-#pragma mark TEXT VIEW RESIZE | ALIGN
-
-- (CGFloat) overflow {
-    CGRect line = [self caretRectForPosition:self.selectedTextRange.end];
-    CGFloat overflow = line.origin.y + line.size.height - (self.contentOffset.y + self.bounds.size.height - self.contentInset.bottom - self.contentInset.top);
-    return overflow;
-}
-
-- (void) resizeView {
-    
-    if (!_maxHeight) {
-        _maxHeight = MAXFLOAT;
-    }
-    
-    NSDictionary * attributes = @{NSFontAttributeName : self.font,
-                                  NSStrokeColorAttributeName : self.textColor};
-    
-    NSAttributedString * attrStr = [[NSAttributedString alloc] initWithString:self.text attributes:attributes];
-    
-    // 10 less than our target because it seems to frame better -- Seriously, you're gonna want to keep the 10.0 . . . trust me.
-    CGFloat width = CGRectGetWidth(self.bounds) - self.textContainerInset.left - self.textContainerInset.right - 10.0;
-    
-    CGRect rect = [attrStr boundingRectWithSize:CGSizeMake(width, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading context:nil];
-    CGFloat height = rect.size.height;
-    
-    // Add an extra line for return characters
-    if ([self.text hasSuffix:@"\n"]) {
-        height = height + self.font.lineHeight;
-    }
-    
-    // I can't explain why this offset is what it is, but it seems to work, others don't, and sometimes that's just gotta be good enough!
-    // Working numbers I've found: 6.0, 18.0
-    //CGFloat offset =  6.0 + self.layer.borderWidth;
-    //CGFloat targetHeight = height + offset;
-    CGFloat offset = (self.layer.borderWidth * 2.0) + masterOffset; // masterOffset * 2.0; // (masterOffset + self.layer.borderWidth) * 2;
-    CGFloat targetHeight = height + offset;
-    
-    if (targetHeight > _maxHeight) {
-        targetHeight = _maxHeight;
-    }
-    else if (targetHeight < (self.layer.cornerRadius * 2.0)) {
-        targetHeight = self.layer.cornerRadius * 2.0;
-    }
-    
-    CGFloat currentHeight = CGRectGetHeight(self.frame);
-    
-    // NSLog(@"TargetHeight: %f", targetHeight);
-    // NSLog(@"CurrentHeight: %f", currentHeight);
-    
-    if (targetHeight != currentHeight) {
-        NSLog(@"Adjusting");
-        self.bounds = CGRectMake(0, 0, CGRectGetWidth(self.bounds), targetHeight);
-    }
-    
-
-    [self alignTextView];
-    
-}
-
-- (void) alignTextViewWithAnimation:(BOOL)shouldAnimate {
-    
-    // Where the blinky caret is
-    // CGRect line = [self caretRectForPosition:self.selectedTextRange.end];
-    CGFloat overflow = [self overflow]; // line.origin.y + line.size.height - (self.contentOffset.y + self.bounds.size.height - self.contentInset.bottom - self.contentInset.top);
-    
-    // if (overflow < 0) overflow = 0;
-    // Give it a little boost
-    CGPoint offsetP = self.contentOffset;
-    offsetP.y += overflow + self.layer.borderWidth + masterOffset;
-    
-    
-    // Adjust our view
-    if (offsetP.y >= 0) {
-        if (shouldAnimate) {
-            [UIView animateWithDuration:0.2 animations:^{
-                [self setContentOffset:offsetP];
-            } completion:^(BOOL finished) {
-            }];
-        }
-        else {
-            [self setContentOffset:offsetP];
-        }
-    }
-    
-}
-
-
-// I'M MAKING ALIGNMENT STRONGER SO IT ALIGNS TOP AND BOTTOM MORE INTELLIGENTLY
-- (void) alignTextView {
-    
-    //The rectangle of the caret (the blinky thingy in textView's)
-    CGRect line = [self caretRectForPosition:self.selectedTextRange.end];
-    
-    // Amount of scrollview above contents of view
-    CGFloat contentOffsetTop = self.contentOffset.y;
-    
-    // The top of the caret
-    CGFloat topOfLine = CGRectGetMinY(line);
-    
-    // The bottom of the caret
-    CGFloat bottomOfLine = topOfLine + CGRectGetHeight(line);
-    
-    // The bottom of the visible text area
-    UIEdgeInsets contentInset = self.contentInset;
-    CGFloat bottomOfVisibleTextArea = contentOffsetTop + CGRectGetHeight(self.bounds) - contentInset.top - contentInset.bottom;
-    
-    // If the top point on the caret is less than offset, then some is offscreen, then that's too much and we need to adjust! (compensate for masterOffset buffer)
-    if (CGRectGetMinY(line) < contentOffsetTop + masterOffset) {
-        // Caret is offscreen TOP
-        NSLog(@"align top");
-        // The amount that the caret is hanging over the top of the textView's visible area
-        CGFloat topOverflow = contentOffsetTop - topOfLine;
-        // There is a slight overhang from letters like y, g, and j if the masterOffset is added.  Without it, the caret will rub the very top of the textView. Either is fine, just pick which one you prefer
-        CGFloat minimumOverflow = topOverflow + self.layer.borderWidth; // + masterOffset;
-        CGPoint offsetP = self.contentOffset;
-        offsetP.y -= minimumOverflow;
-        self.contentOffset = offsetP;
-    }
-    else if (bottomOfLine > (bottomOfVisibleTextArea + masterOffset)) {
-        // Caret is offscreen BOTTOM
-        
-        // The amount that the caret is hanging over the bottom of the textView's visible area
-        CGFloat bottomOverflow = bottomOfLine - bottomOfVisibleTextArea;
-        if (bottomOverflow > 0) {
-            NSLog(@"align bottom");
-            CGFloat minimumOverflow = bottomOverflow + self.layer.borderWidth + masterOffset;
-            CGPoint offsetP = self.contentOffset;
-            offsetP.y += minimumOverflow;
-            self.contentOffset = offsetP;
-        }
-    }
-    else {
-        NSLog(@"Do Nothing");
-        // Caret is onscreen - Do nothing
-        return;
-    }
-}
-
-- (BOOL) shouldAlign {
-    
-    //The rectangle of the caret (the blinky thingy in textView's)
-    CGRect line = [self caretRectForPosition:self.selectedTextRange.end];
-    
-    // CGRect line = [self caretRectForPosition:self.selectedTextRange.end];
-    CGFloat overflow = line.origin.y + line.size.height - (self.contentOffset.y + self.bounds.size.height - self.contentInset.bottom - self.contentInset.top);
-    
-    if (overflow > 0) {
-        //CGFloat overflow = [self overflow];
-        CGFloat minimumOverflow = overflow + self.layer.borderWidth + masterOffset;
-        
-        BOOL shouldAlign = (minimumOverflow > 0);
-        NSLog(@"\n\n\nSHOULD ALIGN: %@\n\n\n", shouldAlign ? @"YES" : @"NO");
-        // NSLog(@"Evaluating Should align for: \n    overvlow: %f\n    minimumOverflow:%f\n    line: %@\n\n    Is Alignint? %@", overflow, minimumOverflow, NSStringFromCGRect(line), shouldAlign ? @"YES" : @"NO");
-        
-        return shouldAlign;
-    }
-    return NO;
-    
-}
-*/
 @end
 
 

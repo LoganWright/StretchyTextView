@@ -22,12 +22,12 @@
 	// Do any additional setup after loading the view, typically from a nib.
     self.view.backgroundColor = [UIColor blackColor];
     UIStretchyTextView * stretchyTextView = [[UIStretchyTextView alloc]init];
-    // stretchyTextView.layer.borderWidth = 2.5;
-    // stretchyTextView.layer.cornerRadius = 15.0;
+    stretchyTextView.layer.borderWidth = 2.5;
+    stretchyTextView.layer.cornerRadius = 15.0;
     stretchyTextView.layer.borderColor = [UIColor greenColor].CGColor;
-    stretchyTextView.frame = CGRectMake(0, 80, 300, 100);
-    stretchyTextView.font = [UIFont systemFontOfSize:52.0];
-    stretchyTextView.text = @"SUP \nMan!?";
+    stretchyTextView.frame = CGRectMake(10, 80, 300, 100);
+    stretchyTextView.font = [UIFont systemFontOfSize:18.0];
+    stretchyTextView.text = @"Hello world! I'm a stretchy textView, watch me grow!";
     [self.view addSubview:stretchyTextView];
     
     
