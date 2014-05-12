@@ -29,8 +29,6 @@
     stretchyTextView.font = [UIFont systemFontOfSize:18.0];
     stretchyTextView.text = @"Hello world! I'm a stretchy textView, watch me grow!";
     [self.view addSubview:stretchyTextView];
-    
-    
 }
 
 - (void)didReceiveMemoryWarning

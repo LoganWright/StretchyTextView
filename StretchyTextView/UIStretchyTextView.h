@@ -8,11 +8,24 @@
 
 #import <UIKit/UIKit.h>
 
-@protocol UIStretchyTextViewDelegate
-
-@end
+typedef NS_ENUM(NSInteger, StretchDirection) {
+    /*!
+     Bottom point fixed, stretches upwards
+     */
+    StretchDirectionUp,
+    /*!
+     Top point remains fixed, stretches downwards
+     */
+    StretchDirectionDown,
+    /*!
+     Center point remains fixed, stretches outwards
+     */
+    StretchDirectionOutward
+};
 
 @interface UIStretchyTextView : UITextView <UITextViewDelegate>
+
+@property (nonatomic) StretchDirection stretchDirection;
 
 @property (nonatomic) CGFloat maxHeight;
 

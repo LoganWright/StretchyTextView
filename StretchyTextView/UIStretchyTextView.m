@@ -20,6 +20,9 @@
  
  */
 
+// Last Update
+// 10 May 2014
+
 
 
 NSString * const KVObserverPathBorderWidth = @"borderWidth";
@@ -59,6 +62,8 @@ NSString * const KVObserverPathCornerRadius = @"cornerRadius";
         
         self.layer.shouldRasterize = YES;
         self.layer.rasterizationScale = [UIScreen mainScreen].scale;
+        
+        _stretchDirection = StretchDirectionOutward;
     }
     return self;
     
@@ -130,7 +135,27 @@ NSString * const KVObserverPathCornerRadius = @"cornerRadius";
     CGFloat currentHeight = CGRectGetHeight(self.frame);
     
     if (targetHeight != currentHeight) {
-        self.bounds = CGRectMake(0, 0, CGRectGetWidth(self.bounds), targetHeight);
+        
+        CGSize targetSize = CGSizeMake(CGRectGetWidth(self.bounds), targetHeight);
+        
+        if (_stretchDirection == StretchDirectionOutward) {
+            self.bounds = (CGRect) {
+                .origin = CGPointZero,
+                .size = targetSize
+            };
+        }
+        else if (_stretchDirection == StretchDirectionDown) {
+            self.frame = (CGRect) {
+                .origin = self.frame.origin,
+                .size = targetSize
+            };
+        }
+        else if (_stretchDirection == StretchDirectionUp) {
+            self.frame = (CGRect) {
+                .origin = CGPointMake(CGRectGetMinX(self.frame), CGRectGetMinY(self.frame) + CGRectGetHeight(self.frame)),
+                .size = CGSizeMake(targetSize.width, -targetSize.height)
+            };
+        }
     }
 }
 - (void) align {
